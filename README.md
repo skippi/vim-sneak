@@ -1,6 +1,8 @@
 sneak.vim :shoe:
 ================
 
+**Fork Notice**: This is a modified version of vim-sneak that fixes markers in [`asvetliakov/vscode-neovim`](https://github.com/asvetliakov/vscode-neovim).
+
 Jump to any location specified by two characters.
 
 Sneak is a powerful, reliable, yet minimal _motion_ plugin for Vim. It works with **multiple
@@ -30,7 +32,7 @@ Sneak is invoked with `s` followed by exactly two characters:
 * Type `3;` to skip to the third match from the current position.
 * Type `ctrl-o` or ``` `` ``` to go back to the starting point.
     * This is a built-in Vim motion; Sneak adds to Vim's [jumplist](http://vimdoc.sourceforge.net/htmldoc/motion.html#jumplist)
-      *only* on `s` invocation—not repeats—so you can 
+      *only* on `s` invocation—not repeats—so you can
       abandon a trail of `;` or `,` by a single `ctrl-o` or ``` `` ```.
 * Type `s<Enter>` at any time to repeat the last Sneak-search.
 * Type `S` to search backwards.

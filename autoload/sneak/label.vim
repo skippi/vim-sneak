@@ -11,6 +11,8 @@ let s:clear_syntax = !has('patch-7.4.792')
 let s:matchmap = {}
 let s:match_ids = []
 let s:orig_conceal_matches = []
+let s:vscode_decorator_poses = {}
+let s:vscode_hl = "SneakLabel"
 
 if exists('*strcharpart')
   func! s:strchar(s, i) abort
@@ -28,8 +30,16 @@ func! s:placematch(c, pos) abort
   if s:clear_syntax
     exec "syntax match SneakLabel '".pat."' conceal cchar=".a:c
   else
-    let id = matchadd('Conceal', pat, 999, -1, { 'conceal': a:c })
-    call add(s:match_ids, id)
+    if exists('g:vscode')
+      if !has_key(s:vscode_decorator_poses, a:pos[0])
+        let s:vscode_decorator_poses[a:pos[0]] = []
+      endif
+      call add(s:vscode_decorator_poses[a:pos[0]], [a:pos[1], a:c])
+      call VSCodeSetTextDecorations(s:vscode_hl, items(s:vscode_decorator_poses))
+    else
+      let id = matchadd('Conceal', pat, 999, -1, { 'conceal': a:c })
+      call add(s:match_ids, id)
+    endif
   endif
 endf
 
@@ -126,8 +136,7 @@ endf "}}}
 func! s:after() abort
   autocmd! sneak_label_cleanup
   try | call matchdelete(s:sneak_cursor_hl) | catch | endtry
-  call map(s:match_ids, 'matchdelete(v:val)')
-  let s:match_ids = []
+  call s:clear_match_labels()
   "remove temporary highlight links
   exec 'hi! link Conceal '.s:orig_hl_conceal
   call s:restore_conceal_matches()
@@ -146,6 +155,16 @@ func! s:after() abort
 
   let [&l:concealcursor,&l:conceallevel]=[s:o_cocu,s:o_cole]
 endf
+
+func! s:clear_match_labels() abort
+  if exists('g:vscode')
+    call VSCodeSetTextDecorations(s:vscode_hl, [])
+    let s:vscode_decorator_poses = {}
+  else
+    call map(s:match_ids, 'matchdelete(v:val)')
+    let s:match_ids = []
+  endif
+endfunc
 
 func! s:disable_conceal_in_other_windows() abort
   for w in range(1, winnr('$'))

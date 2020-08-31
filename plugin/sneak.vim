@@ -207,15 +207,19 @@ func! sneak#to(op, input, inputlen, count, register, repeatmotion, reverse, incl
 
   "highlight the vertical 'tunnel' that the search is scoped-to
   if max(bounds) "perform the scoped highlight...
-    let w:sneak_sc_hl = matchadd('SneakScope', l:scope_pattern)
+    if !exists('g:vscode')
+      let w:sneak_sc_hl = matchadd('SneakScope', l:scope_pattern)
+    endif
   endif
 
   call s:attach_autocmds()
 
-  "highlight actual matches at or below the cursor position
-  "  - store in w: because matchadd() highlight is per-window.
-  let w:sneak_hl_id = matchadd('Sneak',
-        \ (s.prefix).(s.match_pattern).(s.search).'\|'.curln_pattern.(s.search))
+  if !exists('g:vscode')
+    "highlight actual matches at or below the cursor position
+    "  - store in w: because matchadd() highlight is per-window.
+    let w:sneak_hl_id = matchadd('Sneak',
+          \ (s.prefix).(s.match_pattern).(s.search).'\|'.curln_pattern.(s.search))
+  endif
 
   "Let user deactivate with <esc>
   if (has('nvim') || has('gui_running')) && maparg('<esc>', 'n') ==# ""
